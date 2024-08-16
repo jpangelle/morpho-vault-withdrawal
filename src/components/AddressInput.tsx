@@ -7,11 +7,27 @@ import { isAddress } from "viem";
 type Props = {
   isValidAddress: boolean;
   setIsValidAddress: (value: boolean) => void;
+  address: string;
+  setAddress: (value: string) => void;
+  isMetaMorpho: boolean;
 };
 
-export const AddressInput = ({ isValidAddress, setIsValidAddress }: Props) => {
-  const [address, setAddress] = useState("");
+export const AddressInput = ({
+  isValidAddress,
+  setIsValidAddress,
+  address,
+  setAddress,
+  isMetaMorpho,
+}: Props) => {
   const [isDirty, setIsDirty] = useState(false);
+
+  const isValid = isValidAddress && isMetaMorpho;
+
+  const getErrorMessage = () => {
+    if (!isValidAddress) return "Input is not an address";
+    if (!isMetaMorpho) return "Input is not a MetaMorpho address";
+    return "";
+  };
 
   return (
     <Card w="w-[350px]" h="h-[160px]">
@@ -24,7 +40,7 @@ export const AddressInput = ({ isValidAddress, setIsValidAddress }: Props) => {
             spellCheck="false"
             className={`${
               isDirty &&
-              (isValidAddress ? "text-morpho-primary/95" : "text-morpho-error")
+              (isValid ? "text-morpho-primary/95" : "text-morpho-error")
             } focus:outline-none focus:input-focus-outline focus:ring-1 focus:input-focus-outline h-8 text-ellipsis rounded-md bg-morpho-primary/[.03] w-full py-2 pl-[10px] pr-[38px] text-[13px] leading-5 placeholder-morpho-primary/40`}
             placeholder="0xabc...12345"
             type="text"
@@ -35,7 +51,7 @@ export const AddressInput = ({ isValidAddress, setIsValidAddress }: Props) => {
             }}
             onBlur={() => setIsDirty(true)}
           />
-          {isValidAddress && (
+          {isValid && (
             <div className="absolute top-1.5 right-1 size-5 flex justify-center">
               <Image
                 className="w-auto h-auto"
@@ -46,17 +62,17 @@ export const AddressInput = ({ isValidAddress, setIsValidAddress }: Props) => {
               />
             </div>
           )}
-          {isDirty && !isValidAddress && (
+          {isDirty && !isValid && (
             <div className="absolute top-1.5 right-1 size-5 flex justify-center">
               <Image src="/alert.svg" width={20} height={20} alt="check mark" />
             </div>
           )}
           <div
             className={`text-morpho-error text-[11px] leading-4 text-right ${
-              (!isDirty || isValidAddress) && "invisible"
+              (!isDirty || isValid) && "invisible"
             }`}
           >
-            Input is not an address
+            {getErrorMessage()}
           </div>
         </div>
       </div>

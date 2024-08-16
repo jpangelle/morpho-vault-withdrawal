@@ -1,13 +1,10 @@
 "use client";
-import { AddressInput } from "@/components/AddressInput";
 import { WalletConnect } from "@/components/WalletConnect";
+import { Withdraw } from "@/components/Withdraw";
 import { WrongNetwork } from "@/components/WrongNetwork";
-import { useState } from "react";
 import { useAccount } from "wagmi";
 
 export default function Home() {
-  const [isValidAddress, setIsValidAddress] = useState(false);
-
   const { isConnected, chainId } = useAccount();
 
   if (!isConnected) {
@@ -18,10 +15,5 @@ export default function Home() {
     return <WrongNetwork />;
   }
 
-  return (
-    <AddressInput
-      setIsValidAddress={setIsValidAddress}
-      isValidAddress={isValidAddress}
-    />
-  );
+  return <Withdraw />;
 }
