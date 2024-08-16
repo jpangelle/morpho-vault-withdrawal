@@ -1,6 +1,6 @@
 "use client";
+import { Vault } from "@/components/Vault";
 import { WalletConnect } from "@/components/WalletConnect";
-import { Withdraw } from "@/components/Withdraw";
 import { WrongNetwork } from "@/components/WrongNetwork";
 import { useAccount } from "wagmi";
 
@@ -15,5 +15,5 @@ export default function Home() {
     return <WrongNetwork />;
   }
 
-  return <Withdraw />;
+  return <Vault />;
 }

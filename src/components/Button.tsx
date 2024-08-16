@@ -4,14 +4,19 @@ type Props = {
   children: ReactNode;
   isLoading?: boolean;
   onClick?: () => void;
+  isDisabled?: boolean;
 };
 
-export const Button = ({ children, isLoading, onClick }: Props) => (
+export const Button = ({ children, isLoading, onClick, isDisabled }: Props) => (
   <button
     className={`w-full rounded h-8 text-[13px] leading-5 text-white bg-morpho-gradient ${
-      isLoading && "opacity-30"
+      (isLoading || isDisabled) && "opacity-30"
     }`}
-    onClick={onClick}
+    onClick={() => {
+      if (!isLoading && !isDisabled) {
+        onClick?.();
+      }
+    }}
   >
     {children}
   </button>
