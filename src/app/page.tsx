@@ -1,19 +1,12 @@
 "use client";
-import { useAccount, useConnect } from "wagmi";
-import { injected } from "wagmi/connectors";
+import { WalletConnect } from "@/components/WalletConnect";
+import { useAccount } from "wagmi";
 
 export default function Home() {
   const { isConnected, chainId } = useAccount();
-  const { connect } = useConnect();
 
   if (!isConnected) {
-    return (
-      <div>
-        <button onClick={() => connect({ connector: injected() })}>
-          Connect wallet
-        </button>
-      </div>
-    );
+    return <WalletConnect />;
   }
 
   if (chainId !== 1) {
