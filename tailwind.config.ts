@@ -15,6 +15,7 @@ const config: Config = {
       colors: {
         "morpho-background": "rgba(240, 242, 247, 1)",
         "morpho-primary": "rgba(25, 29, 32)",
+        "morpho-error": "rgba(199, 62, 89, 0.95)",
       },
     },
   },
