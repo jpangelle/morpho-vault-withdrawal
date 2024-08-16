@@ -1,5 +1,6 @@
 "use client";
 import { WalletConnect } from "@/components/WalletConnect";
+import { WrongNetwork } from "@/components/WrongNetwork";
 import { useAccount } from "wagmi";
 
 export default function Home() {
@@ -10,7 +11,7 @@ export default function Home() {
   }
 
   if (chainId !== 1) {
-    return <div>Wrong network</div>;
+    return <WrongNetwork />;
   }
 
   return <div>Withdraw</div>;
