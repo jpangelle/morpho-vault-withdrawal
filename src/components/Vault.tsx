@@ -4,6 +4,7 @@ import { Card } from "@/components/Card";
 import { Withdraw } from "@/components/Withdraw";
 import { abi, metaMorphoAbi, mmFactoryAddress } from "@/contract";
 import { useMetaMorphoVault } from "@/hooks/useMetaMorphoVault";
+import { formatAmount } from "@/utilities";
 import { useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
@@ -60,10 +61,13 @@ export const Vault = () => {
     );
   };
 
-  const formattedShares = formatUnits(
-    vaultData.userShares || parseUnits("0", 10),
-    vaultData.vaultDecimals
-  );
+  const formattedShares =
+    isLoaded &&
+    formatAmount(
+      Number(
+        formatUnits(vaultData.userShares, vaultData.vaultDecimals)
+      ).toFixed(2)
+    );
 
   if (isPending) {
     return <PendingTransaction />;

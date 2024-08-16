@@ -1,4 +1,5 @@
 "use client";
+import { formatAmount } from "@/utilities";
 import { formatUnits } from "viem";
 import { Button } from "./Button";
 import { Card } from "./Card";
@@ -24,11 +25,13 @@ export const Withdraw = ({
     vaultSymbol,
     assetSymbol,
   } = vaultData;
-  const formattedShares = formatUnits(userShares || 0, vaultDecimals);
-  const formattedAssets = formatUnits(userAssets || 0, assetDecimals);
-  const formattedMaxRedeem = Number(
-    formatUnits(userMaxRedeem || 0, vaultDecimals)
+  const formattedShares = formatAmount(
+    Number(formatUnits(userShares, vaultDecimals)).toFixed(2)
   );
+  const formattedAssets = formatAmount(
+    Number(formatUnits(userAssets, assetDecimals)).toFixed(2)
+  );
+  const formattedMaxRedeem = Number(formatUnits(userMaxRedeem, vaultDecimals));
 
   return (
     <Card h="h-[321px]" w="w-[350px]">
