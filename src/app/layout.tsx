@@ -1,3 +1,4 @@
+import { Header } from "@/components/Header";
 import { Providers } from "@/components/Providers";
 import { getConfig } from "@/wagmiConfig";
 import type { Metadata } from "next";
@@ -25,8 +26,11 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Providers initialState={initialState}>{children}</Providers>
+      <body className={`${inter.className} bg-morpho-background`}>
+        <Providers initialState={initialState}>
+          <Header />
+          <div className="flex justify-center mt-[200px]">{children}</div>
+        </Providers>
       </body>
     </html>
   );
