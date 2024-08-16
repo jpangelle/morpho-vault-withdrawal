@@ -1,7 +1,11 @@
 "use client";
+import { WalletWidget } from "@/components/WalletWidget";
 import Image from "next/image";
+import { useAccount } from "wagmi";
 
 export const Header = () => {
+  const account = useAccount();
+
   return (
     <header className="h-[50px] w-full flex justify-between px-10 py-3 border-b-[0.5px] border-morpho-primary/15">
       <div className="flex gap-8">
@@ -18,7 +22,7 @@ export const Header = () => {
           Morpho Test
         </div>
       </div>
-      <div>0x5dac...2456</div>
+      {account?.address && <WalletWidget walletAddress={account.address} />}
     </header>
   );
 };
