@@ -1,3 +1,4 @@
+import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import Image from "next/image";
 import { useSwitchChain } from "wagmi";
@@ -22,7 +23,7 @@ export const WrongNetwork = () => {
           </div>
         </div>
         <div className="flex justify-center">
-          <button onClick={() => switchChain({ chainId: 1 })}>Switch</button>
+          <Button onClick={() => switchChain({ chainId: 1 })}>Switch</Button>
         </div>
       </div>
     </Card>

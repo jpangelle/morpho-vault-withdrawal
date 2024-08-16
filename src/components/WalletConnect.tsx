@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import Image from "next/image";
 import { useConnect } from "wagmi";
@@ -31,9 +32,12 @@ export const WalletConnect = () => {
           </div>
         </div>
         <div className="flex justify-center">
-          <button onClick={() => connect({ connector: injected() })}>
+          <Button
+            onClick={() => connect({ connector: injected() })}
+            isLoading={isLoading}
+          >
             {isLoading ? "Loading..." : "Connect wallet"}
-          </button>
+          </Button>
         </div>
       </div>
     </Card>
