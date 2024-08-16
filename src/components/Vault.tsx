@@ -16,20 +16,23 @@ export const Vault = () => {
   const [isValidAddress, setIsValidAddress] = useState(false);
   const [isPendingSignature, setIsPendingSignature] = useState(false);
 
-  const { data: isMetaMorphoData, status: isMetaMorphoStatus } =
-    useReadContract({
-      abi,
-      address: mmFactoryAddress,
-      functionName: "isMetaMorpho",
-      args: [address],
-      query: {
-        enabled: isValidAddress,
-        retry: false,
-        refetchOnWindowFocus: false,
-      },
-    });
+  const {
+    data: isMetaMorphoData,
+    isSuccess: isMetaMorphoSuccess,
+    isError: isMetaMorphoError,
+  } = useReadContract({
+    abi,
+    address: mmFactoryAddress,
+    functionName: "isMetaMorpho",
+    args: [address],
+    query: {
+      enabled: isValidAddress,
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  });
 
-  const isMetaMorpho = !!isMetaMorphoData && isMetaMorphoStatus === "success";
+  const isMetaMorpho = !!isMetaMorphoData && isMetaMorphoSuccess;
 
   const {
     data: vaultData,
@@ -105,6 +108,7 @@ export const Vault = () => {
         address={address}
         setAddress={setAddress}
         isMetaMorpho={isMetaMorpho}
+        isMetaMorphoError={isMetaMorphoError}
       />
       {isLoaded && !isFetching && (
         <Withdraw

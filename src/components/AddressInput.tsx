@@ -10,6 +10,7 @@ type Props = {
   address: string;
   setAddress: (value: string) => void;
   isMetaMorpho: boolean;
+  isMetaMorphoError: boolean;
 };
 
 export const AddressInput = ({
@@ -18,13 +19,15 @@ export const AddressInput = ({
   address,
   setAddress,
   isMetaMorpho,
+  isMetaMorphoError,
 }: Props) => {
   const [isDirty, setIsDirty] = useState(false);
 
-  const isValid = isValidAddress && isMetaMorpho;
+  const isValid = isValidAddress && isMetaMorpho && !isMetaMorphoError;
 
   const getErrorMessage = () => {
     if (!isValidAddress) return "Input is not an address";
+    if (isMetaMorphoError) return "An error occurred checking the contract";
     if (!isMetaMorpho) return "Input is not a MetaMorpho address";
     return "";
   };
