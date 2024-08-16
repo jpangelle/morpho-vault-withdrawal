@@ -1,7 +1,7 @@
 "use client";
 import { metaMorphoAbi } from "@/contract";
 import { erc20Abi } from "viem";
-import { useAccount, useReadContracts, useWriteContract } from "wagmi";
+import { useAccount, useReadContracts } from "wagmi";
 
 export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
   const account = useAccount();
@@ -10,8 +10,6 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
     address: address as `0x${string}`,
     abi: metaMorphoAbi,
   };
-
-  const { writeContract } = useWriteContract();
 
   const {
     data: metaMorphoVaultData,
@@ -110,25 +108,15 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
 
   return {
     data: {
-      userShares: metaMorphoVaultData?.[1].result,
-      userMaxRedeem: metaMorphoVaultData?.[2].result,
-      vaultName: metaMorphoVaultData?.[3].result,
-      vaultSymbol: metaMorphoVaultData?.[4].result,
-      vaultDecimals: metaMorphoVaultData?.[5].result,
-      assetSymbol: erc20Data?.[0].result,
-      assetDecimals: erc20Data?.[1].result,
-      userAssets: assetData?.[0].result,
-      userMaxWithdraw: assetData?.[1].result,
-      withdraw: writeContract.bind(null, {
-        abi: metaMorphoAbi,
-        address: address as `0x${string}`,
-        functionName: "withdraw",
-        args: [
-          metaMorphoVaultData?.[1].result,
-          account.address,
-          account.address,
-        ],
-      }),
+      userShares: metaMorphoVaultData?.[1].result as bigint,
+      userMaxRedeem: metaMorphoVaultData?.[2].result as bigint,
+      vaultName: metaMorphoVaultData?.[3].result as string,
+      vaultSymbol: metaMorphoVaultData?.[4].result as string,
+      vaultDecimals: metaMorphoVaultData?.[5].result as number,
+      assetSymbol: erc20Data?.[0].result as string,
+      assetDecimals: erc20Data?.[1].result as number,
+      userAssets: assetData?.[0].result as bigint,
+      userMaxWithdraw: assetData?.[1].result as bigint,
     },
     isLoaded: isMetaMorphoVaultSuccess && isErc20Success && isAssetSuccess,
     isFetching: isMetaMorphoVaultFetching || isErc20Fetching || isAssetFetching,
