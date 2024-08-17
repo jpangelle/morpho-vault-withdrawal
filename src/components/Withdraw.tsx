@@ -27,9 +27,9 @@ export const Withdraw = ({
   } = metaMorphoVaultData;
 
   const formattedShares =
-    userShares && vaultDecimals && formatAmount(userShares, vaultDecimals);
+    userShares && vaultDecimals ? formatAmount(userShares, vaultDecimals) : 0;
   const formattedAssets =
-    userAssets && assetDecimals && formatAmount(userAssets, assetDecimals);
+    userAssets && assetDecimals ? formatAmount(userAssets, assetDecimals) : 0;
   const formattedMaxRedeem =
     userMaxRedeem &&
     vaultDecimals &&
