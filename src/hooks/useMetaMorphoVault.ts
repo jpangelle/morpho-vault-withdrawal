@@ -1,15 +1,18 @@
 "use client";
 import { metaMorphoAbi } from "@/contract";
+import { useIsMetaMorpho } from "@/hooks/useIsMetaMorpho";
 import { erc20Abi } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
-export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
+export const useMetaMorphoVault = (address: string) => {
   const account = useAccount();
 
   const metaMorphoContract = {
     address: address as `0x${string}`,
     abi: metaMorphoAbi,
   };
+
+  const { isMetaMorpho, isMetaMorphoError } = useIsMetaMorpho(address);
 
   const {
     data: metaMorphoVaultData,
@@ -25,12 +28,12 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
       {
         ...metaMorphoContract,
         functionName: "balanceOf",
-        args: [account.address],
+        args: [account.address!],
       },
       {
         ...metaMorphoContract,
         functionName: "maxRedeem",
-        args: [account.address],
+        args: [account.address!],
       },
       {
         ...metaMorphoContract,
@@ -62,16 +65,14 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
       {
         ...metaMorphoContract,
         functionName: "convertToAssets",
-        args: [metaMorphoVaultData?.[1].result],
+        args: [metaMorphoVaultData?.[1].result!],
       },
-
       {
         ...metaMorphoContract,
         functionName: "convertToAssets",
-        args: [metaMorphoVaultData?.[2].result],
+        args: [metaMorphoVaultData?.[2].result!],
       },
     ],
-
     query: {
       enabled:
         metaMorphoVaultData?.[1].status === "success" &&
@@ -82,7 +83,7 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
   });
 
   const erc20Contract = {
-    address: metaMorphoVaultData?.[0].result as `0x${string}`,
+    address: metaMorphoVaultData?.[0].result,
     abi: erc20Abi,
   };
 
@@ -110,19 +111,24 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
   });
 
   return {
-    data: {
-      userShares: metaMorphoVaultData?.[1].result as bigint,
-      userMaxRedeem: metaMorphoVaultData?.[2].result as bigint,
-      vaultName: metaMorphoVaultData?.[3].result as string,
-      vaultSymbol: metaMorphoVaultData?.[4].result as string,
-      vaultDecimals: metaMorphoVaultData?.[5].result as number,
-      assetSymbol: erc20Data?.[0].result as string,
-      assetDecimals: erc20Data?.[1].result as number,
-      userAssets: assetData?.[0].result as bigint,
-      userMaxWithdraw: assetData?.[1].result as bigint,
+    metaMorphoVaultData: {
+      userShares: metaMorphoVaultData?.[1].result,
+      userMaxRedeem: metaMorphoVaultData?.[2].result,
+      vaultName: metaMorphoVaultData?.[3].result,
+      vaultSymbol: metaMorphoVaultData?.[4].result,
+      vaultDecimals: metaMorphoVaultData?.[5].result,
+      assetSymbol: erc20Data?.[0].result,
+      assetDecimals: erc20Data?.[1].result,
+      userAssets: assetData?.[0].result,
+      userMaxWithdraw: assetData?.[1].result,
     },
-    isLoaded: isMetaMorphoVaultSuccess && isErc20Success && isAssetSuccess,
-    isFetching: isMetaMorphoVaultFetching || isErc20Fetching || isAssetFetching,
-    isError: isMetaMorphoVaultError || isErc20Error || isAssetError,
+    isMetaMorpho,
+    isMetaMorphoError,
+    isMetaMorphoVaultLoaded:
+      isMetaMorphoVaultSuccess && isErc20Success && isAssetSuccess,
+    isMetaMorphoVaultFetching:
+      isMetaMorphoVaultFetching || isErc20Fetching || isAssetFetching,
+    isMetaMorphoVaultError:
+      isMetaMorphoVaultError || isErc20Error || isAssetError,
   };
 };

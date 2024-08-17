@@ -2,95 +2,53 @@
 import { AddressInput } from "@/components/AddressInput";
 import { Card } from "@/components/Card";
 import { Withdraw } from "@/components/Withdraw";
-import { abi, metaMorphoAbi, mmFactoryAddress } from "@/contract";
+import { metaMorphoAbi } from "@/contract";
 import { useMetaMorphoVault } from "@/hooks/useMetaMorphoVault";
+import { useRedeem } from "@/hooks/useRedeem";
+import { useRedeemGasEstimate } from "@/hooks/useRedeemGasEstimate";
 import { formatAmount } from "@/utilities";
 import { debounce } from "lodash";
 import { useRef, useState } from "react";
-import { encodeFunctionData, formatUnits, isAddress } from "viem";
-import {
-  useAccount,
-  useEstimateGas,
-  useReadContract,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-} from "wagmi";
+import { isAddress } from "viem";
+import { useAccount } from "wagmi";
 import { PendingTransaction } from "./PendingTransaction";
 import { StatusCard } from "./StatusCard";
 
 export const Vault = () => {
   const account = useAccount();
   const [address, setAddress] = useState("");
-  const [isValidAddress, setIsValidAddress] = useState(false);
 
   const {
-    data: isMetaMorphoData,
-    isSuccess: isMetaMorphoSuccess,
-    isError: isMetaMorphoError,
-  } = useReadContract({
-    abi,
-    address: mmFactoryAddress,
-    functionName: "isMetaMorpho",
-    args: [address],
-    query: {
-      enabled: isValidAddress,
-      retry: false,
-      refetchOnWindowFocus: false,
-    },
-  });
+    metaMorphoVaultData,
+    isMetaMorphoVaultLoaded,
+    isMetaMorphoVaultFetching,
+    isMetaMorphoVaultError,
+    isMetaMorpho,
+    isMetaMorphoError,
+  } = useMetaMorphoVault(address);
 
-  const isMetaMorpho = !!isMetaMorphoData && isMetaMorphoSuccess;
-
-  const {
-    data: vaultData,
-    isLoaded: isMetaMorphoVaultLoaded,
-    isFetching: isMetaMorphoVaultFetching,
-    isError: isMetaMorphoVaultError,
-  } = useMetaMorphoVault(address, isMetaMorpho);
-
-  const { data: estimatedGasData } = useEstimateGas({
-    data: vaultData.userShares
-      ? encodeFunctionData({
-          abi: metaMorphoAbi,
-          functionName: "redeem",
-          args: [vaultData.userShares, account.address, account.address],
-        })
-      : "0x",
-    to: address as `0x${string}`,
-    query: {
-      enabled: isMetaMorphoVaultLoaded && !!account.address,
-    },
-  });
+  const estimatedGasData = useRedeemGasEstimate(address);
 
   const {
     writeContract,
-    isPending: isPendingSignature,
-    isSuccess: isSigningSuccess,
-    isError: isSigningError,
+    isSigningPending,
+    isSigningSuccess,
+    isSigningError,
     reset,
-    data: trxHash,
-  } = useWriteContract();
-
-  const debouncedAddress = useRef(
-    debounce((value: string) => {
-      setAddress(value);
-      setIsValidAddress(isAddress(value));
-    }, 250)
-  );
-
-  const { data: transactionReceiptData } = useWaitForTransactionReceipt({
-    hash: trxHash,
-    query: {
-      enabled: !!trxHash,
-    },
-  });
+    trxHash,
+    transactionStatus,
+  } = useRedeem();
 
   const handleWithdraw = () => {
     writeContract({
       abi: metaMorphoAbi,
       address: address as `0x${string}`,
       functionName: "redeem",
-      args: [vaultData.userShares, account.address, account.address],
+      args: [
+        metaMorphoVaultData.userShares!,
+        account.address!,
+        account.address!,
+      ],
       gas: estimatedGasData,
     });
   };
@@ -98,30 +56,35 @@ export const Vault = () => {
   const formattedShares =
     isMetaMorphoVaultLoaded &&
     formatAmount(
-      Number(
-        formatUnits(vaultData.userShares, vaultData.vaultDecimals)
-      ).toFixed(2)
+      metaMorphoVaultData.userShares!,
+      metaMorphoVaultData.vaultDecimals!
     );
 
-  if (isSigningSuccess && !transactionReceiptData?.status) {
-    return <PendingTransaction trxHash={trxHash} />;
+  const debouncedSetAddress = useRef(
+    debounce((value: string) => {
+      setAddress(value);
+    }, 250)
+  );
+
+  if (isSigningSuccess && !transactionStatus) {
+    return <PendingTransaction trxHash={trxHash!} />;
   }
 
-  if (transactionReceiptData?.status === "success") {
+  if (transactionStatus === "success") {
     return (
       <StatusCard
         type="success"
         buttonAction={() => {
-          setAddress("");
           reset();
+          setAddress("");
         }}
-        message={`You have received ${formattedShares} ${vaultData.assetSymbol}`}
+        message={`You have received ${formattedShares} ${metaMorphoVaultData.assetSymbol}`}
       />
     );
   }
 
   if (
-    transactionReceiptData?.status === "reverted" ||
+    transactionStatus === "reverted" ||
     isSigningError ||
     isMetaMorphoVaultError
   ) {
@@ -131,13 +94,7 @@ export const Vault = () => {
         type="error"
         buttonAction={() => {
           reset();
-          writeContract({
-            abi: metaMorphoAbi,
-            address: address as `0x${string}`,
-            functionName: "redeem",
-            args: [vaultData.userShares, account.address, account.address],
-            gas: estimatedGasData,
-          });
+          handleWithdraw();
         }}
       />
     );
@@ -146,19 +103,16 @@ export const Vault = () => {
   return (
     <div className="flex flex-col gap-[25px]">
       <AddressInput
-        isValidAddress={isValidAddress}
-        setIsValidAddress={setIsValidAddress}
-        address={address}
-        setAddress={setAddress}
+        isValidAddress={isAddress(address)}
         isMetaMorpho={isMetaMorpho}
         isMetaMorphoError={isMetaMorphoError}
-        debouncedAddress={debouncedAddress.current}
+        debouncedSetAddress={debouncedSetAddress.current}
       />
       {isMetaMorphoVaultLoaded && !isMetaMorphoVaultFetching && (
         <Withdraw
           handleWithdraw={handleWithdraw}
-          vaultData={vaultData}
-          isPendingSignature={isPendingSignature}
+          metaMorphoVaultData={metaMorphoVaultData}
+          isSigningPending={isSigningPending}
         />
       )}
       {!isMetaMorphoVaultLoaded && isMetaMorphoVaultFetching && (

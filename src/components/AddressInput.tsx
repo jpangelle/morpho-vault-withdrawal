@@ -5,19 +5,16 @@ import { useState } from "react";
 
 type Props = {
   isValidAddress: boolean;
-  setIsValidAddress: (value: boolean) => void;
-  address: string;
-  setAddress: (value: string) => void;
   isMetaMorpho: boolean;
   isMetaMorphoError: boolean;
-  debouncedAddress: (value: string) => void;
+  debouncedSetAddress: (value: string) => void;
 };
 
 export const AddressInput = ({
   isValidAddress,
   isMetaMorpho,
   isMetaMorphoError,
-  debouncedAddress,
+  debouncedSetAddress,
 }: Props) => {
   const [isDirty, setIsDirty] = useState(false);
 
@@ -47,7 +44,7 @@ export const AddressInput = ({
             placeholder="0xabc...12345"
             type="text"
             onChange={(event) => {
-              debouncedAddress(event.target.value);
+              debouncedSetAddress(event.target.value);
             }}
             onBlur={() => setIsDirty(true)}
           />

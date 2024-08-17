@@ -1,4 +1,4 @@
-"use client";
+import { MetaMorpho } from "@/types";
 import { formatAmount } from "@/utilities";
 import { formatUnits } from "viem";
 import { Button } from "./Button";
@@ -6,14 +6,14 @@ import { Card } from "./Card";
 
 type Props = {
   handleWithdraw: () => void;
-  vaultData: any;
-  isPendingSignature: boolean;
+  metaMorphoVaultData: MetaMorpho;
+  isSigningPending: boolean;
 };
 
 export const Withdraw = ({
   handleWithdraw,
-  vaultData,
-  isPendingSignature,
+  metaMorphoVaultData,
+  isSigningPending,
 }: Props) => {
   const {
     userAssets,
@@ -24,14 +24,16 @@ export const Withdraw = ({
     vaultName,
     vaultSymbol,
     assetSymbol,
-  } = vaultData;
-  const formattedShares = formatAmount(
-    Number(formatUnits(userShares, vaultDecimals)).toFixed(2)
-  );
-  const formattedAssets = formatAmount(
-    Number(formatUnits(userAssets, assetDecimals)).toFixed(2)
-  );
-  const formattedMaxRedeem = Number(formatUnits(userMaxRedeem, vaultDecimals));
+  } = metaMorphoVaultData;
+
+  const formattedShares =
+    userShares && vaultDecimals && formatAmount(userShares, vaultDecimals);
+  const formattedAssets =
+    userAssets && assetDecimals && formatAmount(userAssets, assetDecimals);
+  const formattedMaxRedeem =
+    userMaxRedeem &&
+    vaultDecimals &&
+    Number(formatUnits(userMaxRedeem, vaultDecimals));
 
   return (
     <Card h="h-[321px]" w="w-[350px]">
@@ -57,10 +59,10 @@ export const Withdraw = ({
         </div>
         <Button
           onClick={handleWithdraw}
-          isLoading={isPendingSignature}
+          isLoading={isSigningPending}
           isDisabled={formattedMaxRedeem === 0}
         >
-          {isPendingSignature ? "Sign your transaction..." : "Withdraw userMax"}
+          {isSigningPending ? "Sign your transaction..." : "Withdraw userMax"}
         </Button>
       </div>
     </Card>
