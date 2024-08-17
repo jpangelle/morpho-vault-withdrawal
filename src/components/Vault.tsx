@@ -43,8 +43,9 @@ export const Vault = () => {
 
   const {
     data: vaultData,
-    isLoaded,
-    isFetching,
+    isLoaded: isMetaMorphoVaultLoaded,
+    isFetching: isMetaMorphoVaultFetching,
+    isError: isMetaMorphoVaultError,
   } = useMetaMorphoVault(address, isMetaMorpho);
 
   const { data: estimatedGasData } = useEstimateGas({
@@ -57,18 +58,17 @@ export const Vault = () => {
       : "0x",
     to: address as `0x${string}`,
     query: {
-      enabled: isLoaded && !!account.address,
+      enabled: isMetaMorphoVaultLoaded && !!account.address,
     },
   });
 
   const {
     writeContract,
     isPending: isPendingSignature,
-    isSuccess,
-    isError,
+    isSuccess: isSigningSuccess,
+    isError: isSigningError,
     reset,
     data: trxHash,
-    error,
   } = useWriteContract();
 
   const debouncedAddress = useRef(
@@ -96,14 +96,14 @@ export const Vault = () => {
   };
 
   const formattedShares =
-    isLoaded &&
+    isMetaMorphoVaultLoaded &&
     formatAmount(
       Number(
         formatUnits(vaultData.userShares, vaultData.vaultDecimals)
       ).toFixed(2)
     );
 
-  if (isSuccess && !transactionReceiptData?.status) {
+  if (isSigningSuccess && !transactionReceiptData?.status) {
     return <PendingTransaction trxHash={trxHash} />;
   }
 
@@ -120,7 +120,11 @@ export const Vault = () => {
     );
   }
 
-  if (transactionReceiptData?.status === "reverted" || isError) {
+  if (
+    transactionReceiptData?.status === "reverted" ||
+    isSigningError ||
+    isMetaMorphoVaultError
+  ) {
     return (
       <StatusCard
         message="Please try again."
@@ -150,14 +154,14 @@ export const Vault = () => {
         isMetaMorphoError={isMetaMorphoError}
         debouncedAddress={debouncedAddress.current}
       />
-      {isLoaded && !isFetching && (
+      {isMetaMorphoVaultLoaded && !isMetaMorphoVaultFetching && (
         <Withdraw
           handleWithdraw={handleWithdraw}
           vaultData={vaultData}
           isPendingSignature={isPendingSignature}
         />
       )}
-      {isFetching && !isLoaded && (
+      {!isMetaMorphoVaultLoaded && isMetaMorphoVaultFetching && (
         <Card h="h-[321px]" w="w-[350px]">
           <div className="flex flex-col h-full gap-[98px] justify-center">
             <div className="flex flex-col text-center">

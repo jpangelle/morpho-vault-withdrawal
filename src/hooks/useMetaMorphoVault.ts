@@ -15,6 +15,7 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
     data: metaMorphoVaultData,
     isSuccess: isMetaMorphoVaultSuccess,
     isFetching: isMetaMorphoVaultFetching,
+    isError: isMetaMorphoVaultError,
   } = useReadContracts({
     contracts: [
       {
@@ -55,6 +56,7 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
     data: assetData,
     isSuccess: isAssetSuccess,
     isFetching: isAssetFetching,
+    isError: isAssetError,
   } = useReadContracts({
     contracts: [
       {
@@ -88,6 +90,7 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
     data: erc20Data,
     isSuccess: isErc20Success,
     isFetching: isErc20Fetching,
+    isError: isErc20Error,
   } = useReadContracts({
     contracts: [
       {
@@ -120,5 +123,6 @@ export const useMetaMorphoVault = (address: string, isMetaMorpho: boolean) => {
     },
     isLoaded: isMetaMorphoVaultSuccess && isErc20Success && isAssetSuccess,
     isFetching: isMetaMorphoVaultFetching || isErc20Fetching || isAssetFetching,
+    isError: isMetaMorphoVaultError || isErc20Error || isAssetError,
   };
 };
