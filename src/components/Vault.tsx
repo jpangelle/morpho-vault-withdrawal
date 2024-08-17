@@ -5,9 +5,16 @@ import { Withdraw } from "@/components/Withdraw";
 import { abi, metaMorphoAbi, mmFactoryAddress } from "@/contract";
 import { useMetaMorphoVault } from "@/hooks/useMetaMorphoVault";
 import { formatAmount } from "@/utilities";
-import { useState } from "react";
-import { formatUnits, parseUnits } from "viem";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { debounce } from "lodash";
+import { useRef, useState } from "react";
+import { encodeFunctionData, formatUnits, isAddress } from "viem";
+import {
+  useAccount,
+  useEstimateGas,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import { PendingTransaction } from "./PendingTransaction";
 import { StatusCard } from "./StatusCard";
 
@@ -15,7 +22,6 @@ export const Vault = () => {
   const account = useAccount();
   const [address, setAddress] = useState("");
   const [isValidAddress, setIsValidAddress] = useState(false);
-  const [isPendingSignature, setIsPendingSignature] = useState(false);
 
   const {
     data: isMetaMorphoData,
@@ -41,24 +47,52 @@ export const Vault = () => {
     isFetching,
   } = useMetaMorphoVault(address, isMetaMorpho);
 
-  const { writeContract, isPending, isSuccess, isError, reset } =
-    useWriteContract();
+  const { data: estimatedGasData } = useEstimateGas({
+    data: vaultData.userShares
+      ? encodeFunctionData({
+          abi: metaMorphoAbi,
+          functionName: "redeem",
+          args: [vaultData.userShares, account.address, account.address],
+        })
+      : "0x",
+    to: address as `0x${string}`,
+    query: {
+      enabled: isLoaded && !!account.address,
+    },
+  });
+
+  const {
+    writeContract,
+    isPending: isPendingSignature,
+    isSuccess,
+    isError,
+    reset,
+    data: trxHash,
+    error,
+  } = useWriteContract();
+
+  const debouncedAddress = useRef(
+    debounce((value: string) => {
+      setAddress(value);
+      setIsValidAddress(isAddress(value));
+    }, 250)
+  );
+
+  const { data: transactionReceiptData } = useWaitForTransactionReceipt({
+    hash: trxHash,
+    query: {
+      enabled: !!trxHash,
+    },
+  });
 
   const handleWithdraw = () => {
-    setIsPendingSignature(true);
-    writeContract(
-      {
-        abi: metaMorphoAbi,
-        address: address as `0x${string}`,
-        functionName: "withdraw",
-        args: [vaultData.userShares, account.address, account.address],
-      },
-      {
-        onSuccess: () => {
-          setIsPendingSignature(false);
-        },
-      }
-    );
+    writeContract({
+      abi: metaMorphoAbi,
+      address: address as `0x${string}`,
+      functionName: "redeem",
+      args: [vaultData.userShares, account.address, account.address],
+      gas: estimatedGasData,
+    });
   };
 
   const formattedShares =
@@ -69,11 +103,11 @@ export const Vault = () => {
       ).toFixed(2)
     );
 
-  if (isPending) {
-    return <PendingTransaction />;
+  if (isSuccess && !transactionReceiptData?.status) {
+    return <PendingTransaction trxHash={trxHash} />;
   }
 
-  if (isSuccess) {
+  if (transactionReceiptData?.status === "success") {
     return (
       <StatusCard
         type="success"
@@ -86,7 +120,7 @@ export const Vault = () => {
     );
   }
 
-  if (isError) {
+  if (transactionReceiptData?.status === "reverted" || isError) {
     return (
       <StatusCard
         message="Please try again."
@@ -96,8 +130,9 @@ export const Vault = () => {
           writeContract({
             abi: metaMorphoAbi,
             address: address as `0x${string}`,
-            functionName: "withdraw",
+            functionName: "redeem",
             args: [vaultData.userShares, account.address, account.address],
+            gas: estimatedGasData,
           });
         }}
       />
@@ -113,6 +148,7 @@ export const Vault = () => {
         setAddress={setAddress}
         isMetaMorpho={isMetaMorpho}
         isMetaMorphoError={isMetaMorphoError}
+        debouncedAddress={debouncedAddress.current}
       />
       {isLoaded && !isFetching && (
         <Withdraw

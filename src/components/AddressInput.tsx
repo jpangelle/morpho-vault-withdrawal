@@ -2,7 +2,6 @@
 import { Card } from "@/components/Card";
 import Image from "next/image";
 import { useState } from "react";
-import { isAddress } from "viem";
 
 type Props = {
   isValidAddress: boolean;
@@ -11,15 +10,14 @@ type Props = {
   setAddress: (value: string) => void;
   isMetaMorpho: boolean;
   isMetaMorphoError: boolean;
+  debouncedAddress: (value: string) => void;
 };
 
 export const AddressInput = ({
   isValidAddress,
-  setIsValidAddress,
-  address,
-  setAddress,
   isMetaMorpho,
   isMetaMorphoError,
+  debouncedAddress,
 }: Props) => {
   const [isDirty, setIsDirty] = useState(false);
 
@@ -40,6 +38,7 @@ export const AddressInput = ({
         </div>
         <div className="relative">
           <input
+            defaultValue=""
             spellCheck="false"
             className={`${
               isDirty &&
@@ -47,10 +46,8 @@ export const AddressInput = ({
             } focus:outline-none focus:input-focus-outline focus:ring-1 focus:input-focus-outline h-8 text-ellipsis rounded-md bg-morpho-primary/[.03] w-full py-2 pl-[10px] pr-[38px] text-[13px] leading-5 placeholder-morpho-primary/40`}
             placeholder="0xabc...12345"
             type="text"
-            value={address}
             onChange={(event) => {
-              setAddress(event.target.value);
-              setIsValidAddress(isAddress(event.target.value));
+              debouncedAddress(event.target.value);
             }}
             onBlur={() => setIsDirty(true)}
           />

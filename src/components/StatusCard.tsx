@@ -27,7 +27,15 @@ const statuses = {
     color: "text-morpho-error",
     title: "Oh no!",
     buttonText: "Retry",
-    image: <Image src="/alert.svg" width={40} height={40} alt="alert" />,
+    image: (
+      <Image
+        src="/alert.svg"
+        width={40}
+        height={40}
+        alt="alert"
+        className="w-10 h-10"
+      />
+    ),
   },
 };
 

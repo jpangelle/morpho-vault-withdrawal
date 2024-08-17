@@ -16,6 +16,8 @@ const config: Config = {
         "morpho-background": "rgba(240, 242, 247, 1)",
         "morpho-primary": "rgba(25, 29, 32)",
         "morpho-error": "rgba(199, 62, 89, 0.95)",
+        "morpho-success": "rgba(57, 166, 153, 0.95)",
+        "input-focus-outline": "rgba(68, 147, 237, 1)",
       },
     },
   },
