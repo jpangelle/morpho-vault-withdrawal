@@ -31,9 +31,10 @@ export const Withdraw = ({
   const formattedAssets =
     userAssets && assetDecimals ? formatAmount(userAssets, assetDecimals) : 0;
   const formattedMaxRedeem =
-    userMaxRedeem &&
-    vaultDecimals &&
-    Number(formatUnits(userMaxRedeem, vaultDecimals));
+    (userMaxRedeem &&
+      vaultDecimals &&
+      Number(formatUnits(userMaxRedeem, vaultDecimals))) ||
+    0;
 
   return (
     <Card h="h-[321px]" w="w-[350px]">

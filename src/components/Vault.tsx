@@ -94,7 +94,6 @@ export const Vault = () => {
         type="error"
         buttonAction={() => {
           reset();
-          handleWithdraw();
         }}
       />
     );
@@ -103,6 +102,7 @@ export const Vault = () => {
   return (
     <div className="flex flex-col gap-[25px]">
       <AddressInput
+        address={address}
         isValidAddress={isAddress(address)}
         isMetaMorpho={isMetaMorpho}
         isMetaMorphoError={isMetaMorphoError}

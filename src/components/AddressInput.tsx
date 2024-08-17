@@ -8,6 +8,7 @@ type Props = {
   isMetaMorpho: boolean;
   isMetaMorphoError: boolean;
   debouncedSetAddress: (value: string) => void;
+  address: string;
 };
 
 export const AddressInput = ({
@@ -15,6 +16,7 @@ export const AddressInput = ({
   isMetaMorpho,
   isMetaMorphoError,
   debouncedSetAddress,
+  address,
 }: Props) => {
   const [isDirty, setIsDirty] = useState(false);
 
@@ -35,7 +37,7 @@ export const AddressInput = ({
         </div>
         <div className="relative">
           <input
-            defaultValue=""
+            defaultValue={address || ""}
             spellCheck="false"
             className={`${
               isDirty &&
