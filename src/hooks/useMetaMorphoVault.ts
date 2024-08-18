@@ -12,7 +12,7 @@ export const useMetaMorphoVault = (address: string) => {
     abi: metaMorphoAbi,
   };
 
-  const { isMetaMorpho, isMetaMorphoError } = useIsMetaMorpho(address);
+  const { isMetaMorpho } = useIsMetaMorpho(address);
 
   const {
     data: metaMorphoVaultData,
@@ -55,43 +55,19 @@ export const useMetaMorphoVault = (address: string) => {
     },
   });
 
+  const [asset, balanceOf, maxRedeem, name, symbol, decimals] =
+    metaMorphoVaultData ? metaMorphoVaultData : [];
+
+  const erc20Contract = {
+    address: asset?.result,
+    abi: erc20Abi,
+  };
+
   const {
     data: assetData,
     isSuccess: isAssetSuccess,
     isFetching: isAssetFetching,
     isError: isAssetError,
-  } = useReadContracts({
-    contracts: [
-      {
-        ...metaMorphoContract,
-        functionName: "convertToAssets",
-        args: [metaMorphoVaultData?.[1].result!],
-      },
-      {
-        ...metaMorphoContract,
-        functionName: "convertToAssets",
-        args: [metaMorphoVaultData?.[2].result!],
-      },
-    ],
-    query: {
-      enabled:
-        metaMorphoVaultData?.[1].status === "success" &&
-        metaMorphoVaultData?.[2].status === "success",
-      retry: false,
-      refetchOnWindowFocus: false,
-    },
-  });
-
-  const erc20Contract = {
-    address: metaMorphoVaultData?.[0].result,
-    abi: erc20Abi,
-  };
-
-  const {
-    data: erc20Data,
-    isSuccess: isErc20Success,
-    isFetching: isErc20Fetching,
-    isError: isErc20Error,
   } = useReadContracts({
     contracts: [
       {
@@ -102,33 +78,34 @@ export const useMetaMorphoVault = (address: string) => {
         ...erc20Contract,
         functionName: "decimals",
       },
+      {
+        ...metaMorphoContract,
+        functionName: "convertToAssets",
+        args: [balanceOf?.result!],
+      },
     ],
     query: {
-      enabled: metaMorphoVaultData?.[0].status === "success",
+      enabled: isMetaMorphoVaultSuccess,
       retry: false,
       refetchOnWindowFocus: false,
     },
   });
 
+  const [assetSymbol, assetDecimals, userAssets] = assetData ? assetData : [];
+
   return {
     metaMorphoVaultData: {
-      userShares: metaMorphoVaultData?.[1].result,
-      userMaxRedeem: metaMorphoVaultData?.[2].result,
-      vaultName: metaMorphoVaultData?.[3].result,
-      vaultSymbol: metaMorphoVaultData?.[4].result,
-      vaultDecimals: metaMorphoVaultData?.[5].result,
-      assetSymbol: erc20Data?.[0].result,
-      assetDecimals: erc20Data?.[1].result,
-      userAssets: assetData?.[0].result,
-      userMaxWithdraw: assetData?.[1].result,
+      userShares: balanceOf?.result,
+      userMaxRedeem: maxRedeem?.result,
+      vaultName: name?.result,
+      vaultSymbol: symbol?.result,
+      vaultDecimals: decimals?.result,
+      assetSymbol: assetSymbol?.result,
+      assetDecimals: assetDecimals?.result,
+      userAssets: userAssets?.result,
     },
-    isMetaMorpho,
-    isMetaMorphoError,
-    isMetaMorphoVaultLoaded:
-      isMetaMorphoVaultSuccess && isErc20Success && isAssetSuccess,
-    isMetaMorphoVaultFetching:
-      isMetaMorphoVaultFetching || isErc20Fetching || isAssetFetching,
-    isMetaMorphoVaultError:
-      isMetaMorphoVaultError || isErc20Error || isAssetError,
+    isMetaMorphoVaultLoaded: isMetaMorphoVaultSuccess && isAssetSuccess,
+    isMetaMorphoVaultFetching: isMetaMorphoVaultFetching || isAssetFetching,
+    isMetaMorphoVaultError: isMetaMorphoVaultError || isAssetError,
   };
 };

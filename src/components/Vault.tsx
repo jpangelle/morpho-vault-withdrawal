@@ -23,8 +23,6 @@ export const Vault = () => {
     isMetaMorphoVaultLoaded,
     isMetaMorphoVaultFetching,
     isMetaMorphoVaultError,
-    isMetaMorpho,
-    isMetaMorphoError,
   } = useMetaMorphoVault(address);
 
   const estimatedGasData = useRedeemGasEstimate(address);
@@ -104,8 +102,6 @@ export const Vault = () => {
       <AddressInput
         address={address}
         isValidAddress={isAddress(address)}
-        isMetaMorpho={isMetaMorpho}
-        isMetaMorphoError={isMetaMorphoError}
         debouncedSetAddress={debouncedSetAddress.current}
       />
       {isMetaMorphoVaultLoaded && !isMetaMorphoVaultFetching && (

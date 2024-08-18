@@ -19,7 +19,7 @@ export const useIsMetaMorpho = (address: string) => {
     },
   });
   return {
-    isMetaMorpho: !!isMetaMorphoData && isMetaMorphoSuccess,
+    isMetaMorpho: !!isMetaMorphoData,
     isMetaMorphoSuccess,
     isMetaMorphoError,
   };

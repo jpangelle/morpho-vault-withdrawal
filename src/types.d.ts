@@ -7,5 +7,4 @@ export type MetaMorpho = {
   assetSymbol: string | undefined;
   assetDecimals: number | undefined;
   userAssets: bigint | undefined;
-  userMaxWithdraw: bigint | undefined;
 };

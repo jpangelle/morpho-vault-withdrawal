@@ -1,31 +1,34 @@
 "use client";
 import { Card } from "@/components/Card";
+import { useIsMetaMorpho } from "@/hooks/useIsMetaMorpho";
 import Image from "next/image";
 import { useState } from "react";
 
 type Props = {
   isValidAddress: boolean;
-  isMetaMorpho: boolean;
-  isMetaMorphoError: boolean;
-  debouncedSetAddress: (value: string) => void;
   address: string;
+  debouncedSetAddress: (value: string) => void;
 };
 
 export const AddressInput = ({
   isValidAddress,
-  isMetaMorpho,
-  isMetaMorphoError,
-  debouncedSetAddress,
   address,
+  debouncedSetAddress,
 }: Props) => {
   const [isDirty, setIsDirty] = useState(false);
+  const { isMetaMorpho, isMetaMorphoError, isMetaMorphoSuccess } =
+    useIsMetaMorpho(address);
 
-  const isValid = isValidAddress && isMetaMorpho && !isMetaMorphoError;
+  const isValid =
+    isValidAddress &&
+    (isMetaMorphoSuccess ? isMetaMorpho : true) &&
+    !isMetaMorphoError;
 
   const getErrorMessage = () => {
     if (!isValidAddress) return "Input is not an address";
     if (isMetaMorphoError) return "An error occurred checking the contract";
-    if (!isMetaMorpho) return "Input is not a MetaMorpho address";
+    if (!isMetaMorpho && isMetaMorphoSuccess)
+      return "Input is not a MetaMorpho address";
     return "";
   };
 
