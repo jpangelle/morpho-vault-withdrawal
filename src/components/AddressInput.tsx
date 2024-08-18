@@ -3,29 +3,28 @@ import { Card } from "@/components/Card";
 import { useIsMetaMorpho } from "@/hooks/useIsMetaMorpho";
 import Image from "next/image";
 import { useState } from "react";
+import { useDebounce } from "use-debounce";
+import { isAddress } from "viem";
 
 type Props = {
-  isValidAddress: boolean;
   address: string;
-  debouncedSetAddress: (value: string) => void;
+  setAddress: (value: string) => void;
 };
 
-export const AddressInput = ({
-  isValidAddress,
-  address,
-  debouncedSetAddress,
-}: Props) => {
+export const AddressInput = ({ address, setAddress }: Props) => {
   const [isDirty, setIsDirty] = useState(false);
-  const { isMetaMorpho, isMetaMorphoError, isMetaMorphoSuccess } =
-    useIsMetaMorpho(address);
+  const [debouncedAddress] = useDebounce(address, 250);
+
+  const { isMetaMorpho, isMetaMorphoSuccess, isMetaMorphoError } =
+    useIsMetaMorpho(debouncedAddress);
 
   const isValid =
-    isValidAddress &&
+    isAddress(address) &&
     (isMetaMorphoSuccess ? isMetaMorpho : true) &&
     !isMetaMorphoError;
 
   const getErrorMessage = () => {
-    if (!isValidAddress) return "Input is not an address";
+    if (!isAddress(address)) return "Input is not an address";
     if (isMetaMorphoError) return "An error occurred checking the contract";
     if (!isMetaMorpho && isMetaMorphoSuccess)
       return "Input is not a MetaMorpho address";
@@ -40,7 +39,7 @@ export const AddressInput = ({
         </div>
         <div className="relative">
           <input
-            defaultValue={address || ""}
+            value={address}
             spellCheck="false"
             className={`${
               isDirty &&
@@ -49,24 +48,25 @@ export const AddressInput = ({
             placeholder="0xabc...12345"
             type="text"
             onChange={(event) => {
-              debouncedSetAddress(event.target.value);
+              setAddress(event.target.value);
+              setIsDirty(true);
             }}
             onBlur={() => setIsDirty(true)}
           />
-          {isValid && (
+          {isValid && isMetaMorpho && (
             <div className="absolute top-1.5 right-1 size-5 flex justify-center">
               <Image
                 className="w-auto h-auto"
                 src="/check.svg"
                 width={16}
                 height={16}
-                alt="check mark"
+                alt="check-mark"
               />
             </div>
           )}
           {isDirty && !isValid && (
             <div className="absolute top-1.5 right-1 size-5 flex justify-center">
-              <Image src="/alert.svg" width={20} height={20} alt="check mark" />
+              <Image src="/alert.svg" width={20} height={20} alt="alert" />
             </div>
           )}
           <div

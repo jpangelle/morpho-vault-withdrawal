@@ -7,9 +7,8 @@ import { useMetaMorphoVault } from "@/hooks/useMetaMorphoVault";
 import { useRedeem } from "@/hooks/useRedeem";
 import { useRedeemGasEstimate } from "@/hooks/useRedeemGasEstimate";
 import { formatAmount } from "@/utilities";
-import { debounce } from "lodash";
-import { useRef, useState } from "react";
-import { isAddress } from "viem";
+import { useState } from "react";
+import { useDebounce } from "use-debounce";
 import { useAccount } from "wagmi";
 import { PendingTransaction } from "./PendingTransaction";
 import { StatusCard } from "./StatusCard";
@@ -17,15 +16,16 @@ import { StatusCard } from "./StatusCard";
 export const Vault = () => {
   const account = useAccount();
   const [address, setAddress] = useState("");
+  const [debouncedAddress] = useDebounce(address, 250);
 
   const {
     metaMorphoVaultData,
     isMetaMorphoVaultLoaded,
     isMetaMorphoVaultFetching,
     isMetaMorphoVaultError,
-  } = useMetaMorphoVault(address);
+  } = useMetaMorphoVault(debouncedAddress);
 
-  const estimatedGasData = useRedeemGasEstimate(address);
+  const estimatedGasData = useRedeemGasEstimate(debouncedAddress);
 
   const {
     writeContract,
@@ -57,12 +57,6 @@ export const Vault = () => {
       metaMorphoVaultData.userShares!,
       metaMorphoVaultData.vaultDecimals!
     );
-
-  const debouncedSetAddress = useRef(
-    debounce((value: string) => {
-      setAddress(value);
-    }, 250)
-  );
 
   if (isSigningSuccess && !transactionStatus) {
     return <PendingTransaction trxHash={trxHash!} />;
@@ -99,11 +93,7 @@ export const Vault = () => {
 
   return (
     <div className="flex flex-col gap-[25px]">
-      <AddressInput
-        address={address}
-        isValidAddress={isAddress(address)}
-        debouncedSetAddress={debouncedSetAddress.current}
-      />
+      <AddressInput address={address} setAddress={setAddress} />
       {isMetaMorphoVaultLoaded && !isMetaMorphoVaultFetching && (
         <Withdraw
           handleWithdraw={handleWithdraw}
@@ -115,7 +105,9 @@ export const Vault = () => {
         <Card h="h-[321px]" w="w-[350px]">
           <div className="flex flex-col h-full gap-[98px] justify-center">
             <div className="flex flex-col text-center">
-              <div className="text-sm">Fetching vault data...</div>
+              <div className="text-sm font-medium text-morpho-primary/70">
+                Fetching vault data...
+              </div>
             </div>
           </div>
         </Card>
