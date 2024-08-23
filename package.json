@@ -1,19 +1,16 @@
 {
-  "name": "morpho-vault-withdrawal",
-  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "cypress:run": "CYPRESS_REMOTE_DEBUGGING_PORT=9222 cypress run --browser chrome --headed",
-    "cypress:open": "CYPRESS_REMOTE_DEBUGGING_PORT=9222 cypress open --browser chrome"
+    "cypress:run": "CYPRESS_REMOTE_DEBUGGING_PORT=9222 cypress run --browser chrome --headed"
   },
   "dependencies": {
     "@synthetixio/synpress": "^3.7.3",
     "@tanstack/react-query": "^5.51.23",
-    "cypress": "12.17.3",
+    "dotenv": "^16.4.5",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18",
@@ -25,6 +22,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "cypress": "12.17.3",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "postcss": "^8",

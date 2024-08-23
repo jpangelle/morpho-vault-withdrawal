@@ -1,5 +1,10 @@
 import synpressPlugins from "@synthetixio/synpress/plugins";
 import { defineConfig } from "cypress";
+import { config } from "dotenv";
+
+config({
+  path: ".env.local",
+});
 
 module.exports = defineConfig({
   userAgent: "synpress",
@@ -16,5 +21,10 @@ module.exports = defineConfig({
     },
     baseUrl: "http://localhost:3000",
     supportFile: "cypress/e2e/support/support.ts",
+  },
+  env: {
+    SKIP_METAMASK_SETUP: true,
+    ADMIN_RPC: process.env.CYPRESS_ADMIN_RPC,
+    PUBLIC_RPC: process.env.CYPRESS_PUBLIC_RPC,
   },
 });
