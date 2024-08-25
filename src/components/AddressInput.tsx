@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
 import { isAddress } from "viem";
+import { Spinner } from "./Spinner";
 
 type Props = {
   address: string;
@@ -15,8 +16,12 @@ export const AddressInput = ({ address, setAddress }: Props) => {
   const [isDirty, setIsDirty] = useState(false);
   const [debouncedAddress] = useDebounce(address, 250);
 
-  const { isMetaMorpho, isMetaMorphoSuccess, isMetaMorphoError } =
-    useIsMetaMorpho(debouncedAddress);
+  const {
+    isMetaMorpho,
+    isMetaMorphoSuccess,
+    isMetaMorphoError,
+    isMetaMorphoLoading,
+  } = useIsMetaMorpho(debouncedAddress);
 
   const isValid =
     isAddress(address) &&
@@ -29,6 +34,27 @@ export const AddressInput = ({ address, setAddress }: Props) => {
     if (!isMetaMorpho && isMetaMorphoSuccess)
       return "Input is not a MetaMorpho address";
     return "";
+  };
+
+  const AddressIconStatus = () => {
+    if (isMetaMorphoLoading) {
+      return <Spinner />;
+    }
+    if (isValid && isMetaMorpho) {
+      return (
+        <Image
+          className="w-auto h-auto"
+          src="/check.svg"
+          width={16}
+          height={16}
+          alt="check-mark"
+        />
+      );
+    }
+
+    if (isDirty && !isValid) {
+      return <Image src="/alert.svg" width={20} height={20} alt="alert" />;
+    }
   };
 
   return (
@@ -53,22 +79,9 @@ export const AddressInput = ({ address, setAddress }: Props) => {
             }}
             onBlur={() => setIsDirty(true)}
           />
-          {isValid && isMetaMorpho && (
-            <div className="absolute top-1.5 right-1 size-5 flex justify-center">
-              <Image
-                className="w-auto h-auto"
-                src="/check.svg"
-                width={16}
-                height={16}
-                alt="check-mark"
-              />
-            </div>
-          )}
-          {isDirty && !isValid && (
-            <div className="absolute top-1.5 right-1 size-5 flex justify-center">
-              <Image src="/alert.svg" width={20} height={20} alt="alert" />
-            </div>
-          )}
+          <div className="absolute top-1.5 right-1 size-5 flex justify-center">
+            <AddressIconStatus />
+          </div>
           <div
             className={`text-morpho-error text-[11px] leading-4 text-right ${
               (!isDirty || isValid) && "invisible"

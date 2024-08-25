@@ -8,6 +8,7 @@ export const useIsMetaMorpho = (address: string) => {
     isSuccess: isMetaMorphoSuccess,
     isError: isMetaMorphoError,
     refetch: refetchIsMetaMorpho,
+    isLoading: isMetaMorphoLoading,
   } = useReadContract({
     abi: mmFactoryabi,
     address: mmFactoryAddress,
@@ -23,6 +24,7 @@ export const useIsMetaMorpho = (address: string) => {
   });
 
   return {
+    isMetaMorphoLoading: isMetaMorphoLoading,
     isMetaMorpho: !!isMetaMorphoData,
     isMetaMorphoSuccess,
     isMetaMorphoError,

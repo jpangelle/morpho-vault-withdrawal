@@ -18,7 +18,7 @@ const config: Config = {
         "morpho-primary": "rgba(25, 29, 32)",
         "morpho-error": "rgba(199, 62, 89, 0.95)",
         "morpho-success": "rgba(57, 166, 153, 0.95)",
-        "input-focus-outline": "rgba(68, 147, 237, 1)",
+        "morpho-blue": "rgba(68, 147, 237, 1)",
       },
       boxShadow: {
         "morpho-shadow": "0 3px 12px 0 rgba(0,0,0,0.09)",
