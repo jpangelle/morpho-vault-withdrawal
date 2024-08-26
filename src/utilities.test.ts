@@ -1,5 +1,5 @@
+import { formatAmount } from "@/utilities";
 import { parseUnits } from "viem";
-import { formatAmount } from "./utilities";
 
 it("should format amount", () => {
   const amount = parseUnits("1000", 18);

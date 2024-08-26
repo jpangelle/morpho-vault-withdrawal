@@ -1,5 +1,8 @@
 "use client";
 import { AddressInput } from "@/components/AddressInput";
+import { Error } from "@/components/Error";
+import { PendingTransaction } from "@/components/PendingTransaction";
+import { Success } from "@/components/Success";
 import { Withdraw } from "@/components/Withdraw";
 import { metaMorphoAbi } from "@/contract";
 import { useMetaMorphoVault } from "@/hooks/useMetaMorphoVault";
@@ -9,8 +12,6 @@ import { formatAmount } from "@/utilities";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
 import { useAccount } from "wagmi";
-import { PendingTransaction } from "./PendingTransaction";
-import { StatusCard } from "./StatusCard";
 
 export const Vault = () => {
   const account = useAccount();
@@ -63,9 +64,8 @@ export const Vault = () => {
 
   if (transactionStatus === "success") {
     return (
-      <StatusCard
-        type="success"
-        buttonAction={() => {
+      <Success
+        reset={() => {
           reset();
           setAddress("");
         }}
@@ -79,15 +79,7 @@ export const Vault = () => {
     isSigningError ||
     isMetaMorphoVaultError
   ) {
-    return (
-      <StatusCard
-        message="Please try again."
-        type="error"
-        buttonAction={() => {
-          reset();
-        }}
-      />
-    );
+    return <Error reset={reset} />;
   }
 
   return (

@@ -1,9 +1,9 @@
+import { Button } from "@/components/Button";
+import { Card } from "@/components/Card";
+import { VaultSkeleton } from "@/components/VaultSkeleton";
 import { MetaMorpho } from "@/types";
 import { formatAmount } from "@/utilities";
 import { formatUnits } from "viem";
-import { Button } from "./Button";
-import { Card } from "./Card";
-import { VaultSkeleton } from "./VaultSkeleton";
 
 type Props = {
   handleWithdraw: () => void;

@@ -1,11 +1,11 @@
 "use client";
 import { Card } from "@/components/Card";
+import { Spinner } from "@/components/Spinner";
 import { useIsMetaMorpho } from "@/hooks/useIsMetaMorpho";
 import Image from "next/image";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
 import { isAddress } from "viem";
-import { Spinner } from "./Spinner";
 
 type Props = {
   address: string;
